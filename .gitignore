@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+logs/
+.DS_Store
+
+# SQLMesh
+.cache/
+
+# Données générées (volumineuses, régénérables via generator/)
+data/raw/*
+!data/raw/.gitkeep
