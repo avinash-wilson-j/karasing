@@ -1,0 +1,21 @@
+test_stg_bookings_summer_dst:
+  model: staging.stg_bookings
+  inputs:
+    raw.raw_bookings:
+      rows:
+        - booking_id: "test-1"
+          venue_id: "venue_lille"
+          room_id: "room_lille_1"
+          booked_at: "2026-07-01T10:00:00"
+          slot_start: "2026-07-15T22:00:00"
+          party_size: 4
+          amount_eur: 100.0
+  outputs:
+    query:
+      rows:
+        - booking_id: "test-1"
+          venue_id: "venue_lille"
+          room_id: "room_lille_1"
+          slot_start_utc: "2026-07-15T20:00:00"
+          party_size: 4
+          amount_eur: 100.0

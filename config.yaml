@@ -19,6 +19,7 @@ gateways:
       # secrets: 
       # filesystems: 
       # token: 
+      extensions: [icu]
 
 default_gateway: duckdb
 
@@ -27,7 +28,7 @@ default_gateway: duckdb
 
 model_defaults:
   dialect: duckdb
-  start: 2026-09-20 # Start date for backfill history
+  start: 2026-01-01 # Start date for backfill history
   cron: '@daily'    # Run models daily at 12am UTC (can override per model)
 
 # --- Linting Rules ---
