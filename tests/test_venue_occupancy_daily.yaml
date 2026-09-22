@@ -1,0 +1,40 @@
+test_venue_occupancy_daily:
+  model: marts.venue_occupancy_daily
+  inputs:
+    facts.fct_bar_bookings:
+      rows:
+        - booking_id: "60b92540-f292-4837-ae65-a4d8cc3ba4b4"
+          venue_id: "venue_lille"
+          room_id: "room_lille_2"
+          slot_start_utc: "2026-01-01 19:00:00"
+          party_size: 5
+          amount_eur: 133.31
+        - booking_id: "70fb5503-3815-475d-a285-148e715a5421"
+          venue_id: "venue_lille"
+          room_id: "room_lille_3"
+          slot_start_utc: "2026-01-01 16:00:00"
+          party_size: 2
+          amount_eur: 96.39
+        - booking_id: "afa08954-56bd-4123-ab7c-a9b88fab1770"
+          venue_id: "venue_lille"
+          room_id: "room_lille_2"
+          slot_start_utc: "2026-01-01 16:00:00"
+          party_size: 12
+          amount_eur: 133.02
+
+    dims.dim_venue:
+      rows:        
+        - venue_id: "venue_lille"
+          venue_name: "KaraSing Lille"
+          city: "Lille"
+          timezone: "Europe/Paris"
+  outputs:
+    query:
+      rows:
+        - venue_id: "venue_lille"
+          venue_name: "KaraSing Lille"
+          booking_date: "2026-01-01"
+          bookings_count: 3
+          capacity_slots: 21
+          occupancy_rate: 0.14
+
