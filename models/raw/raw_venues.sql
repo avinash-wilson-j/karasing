@@ -10,4 +10,4 @@ MODEL (
   )
 );
 
-SELECT * FROM read_csv_auto('data\raw\bookings\venues.csv')
+SELECT * FROM read_csv_auto('data/raw/bookings/venues.csv')

@@ -12,4 +12,4 @@ MODEL (
   )
 );
 
-SELECT * FROM read_csv_auto('data\raw\subscriptions\subscriptions_export.csv')
+SELECT * FROM read_csv_auto('data/raw/subscriptions/subscriptions_export.csv')
