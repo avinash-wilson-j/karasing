@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dependances
+        run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: ruff check generator legacy models/contracts contracts
+
+      - name: Generer les donnees synthetiques
+        run: python -m generator --days 30 --seed 42 --v2-from-day 25
+
+      - name: Tests unitaires SQLMesh
+        run: sqlmesh test
+
+      - name: Plan SQLMesh (validation complete sur DuckDB frais)
+        run: sqlmesh plan --no-prompts --auto-apply
