@@ -33,7 +33,7 @@ class SongPlayedEventV2(BaseModel):
 
 def validate_song_played_v2(row: dict) -> tuple[bool, str | None]:
     try:
-        song_played = SongPlayedEventV2(**row)
+        SongPlayedEventV2(**row)
         return True, None
     except ValidationError as e:
         return False, str(e)

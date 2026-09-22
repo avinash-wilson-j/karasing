@@ -22,7 +22,7 @@ class SongPlayedEventV1(BaseModel):
 def validate_song_played(row: dict) -> tuple[bool, str | None]:
     """Valide une ligne brute contre le contrat v1. Retourne (est_valide, message_erreur)."""
     try:
-        song_played = SongPlayedEventV1(**row)
+        SongPlayedEventV1(**row)
         return True, None
     except ValidationError as e:
         return False, f'Err {e}'

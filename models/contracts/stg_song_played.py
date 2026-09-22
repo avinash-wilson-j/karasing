@@ -5,7 +5,6 @@ import pandas as pd
 from sqlmesh import ExecutionContext, model
 from sqlmesh.core.model.kind import ModelKindName
 
-
 COLUMNS = {
     "event_id": "text",
     "user_id": "text",
@@ -21,7 +20,7 @@ COLUMNS = {
 
 @model(
     "staging.stg_song_played",
-    kind=dict(name=ModelKindName.INCREMENTAL_BY_TIME_RANGE, time_column="played_at"),
+    kind={"name": ModelKindName.INCREMENTAL_BY_TIME_RANGE, "time_column": "played_at"},
     columns=COLUMNS,
     start="2026-01-01",
     end="2026-01-30",

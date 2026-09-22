@@ -19,7 +19,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Lint (ruff)
-        run: ruff check generator legacy models/contracts contracts
+        run: ruff check generator legacy models/contracts
 
       - name: Generer les donnees synthetiques
         run: python -m generator --days 30 --seed 42 --v2-from-day 25
