@@ -49,4 +49,5 @@ def execute(
         if is_valid:
             valid_rows.append([row.to_dict()[k] for k in COLUMNS])  # ne garde que les colonnes du contrat
 
-    return pd.DataFrame(valid_rows, columns=list(COLUMNS.keys()))
+    df_valid = pd.DataFrame(valid_rows, columns=list(COLUMNS.keys()))
+    return df_valid.drop_duplicates(subset=["event_id"])
