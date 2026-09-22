@@ -9,6 +9,7 @@ MODEL (
     fct_song_plays_song_id_exists(),
     fct_song_plays_volume_anomaly()
   ),
+  depends_on (dims.dim_song),
   start '2026-01-01',
   end '2026-01-31',
   columns (

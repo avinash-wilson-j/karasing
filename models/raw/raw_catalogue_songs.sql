@@ -1,11 +1,6 @@
 MODEL (
   name raw.raw_catalogue_songs,
-  kind INCREMENTAL_BY_TIME_RANGE (
-    time_column snapshot_date,
-    batch_size 1
-  ),
-  start '2026-01-01',
-  end '2026-01-30',
+  kind FULL,
   ignored_rules ["ambiguousorinvalidcolumn"],
   columns (
     song_id VARCHAR,
@@ -21,6 +16,13 @@ MODEL (
 );
 
 SELECT
-    *,
-    CAST(@start_ds AS DATE) AS snapshot_date
-FROM read_csv_auto('data/raw/catalogue/' || @start_ds || '/songs.csv')
+    song_id,
+    title,
+    artist_id,
+    genre,
+    language,
+    release_year,
+    licensed_until,
+    rights_holder_id,
+    CAST(regexp_extract(filename, '(\d{4}-\d{2}-\d{2})') AS DATE) AS snapshot_date
+FROM read_csv_auto('data/raw/catalogue/*/songs.csv', filename=true)
