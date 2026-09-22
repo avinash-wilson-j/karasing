@@ -34,7 +34,7 @@ def execute(
     **kwargs: t.Any,
 ) -> pd.DataFrame:
     
-    from models.contracts.app_events_v1 import validate_song_played
+    from models.contracts.app_events_v2 import validate_song_played_v2
 
     table = context.resolve_table("raw.raw_app_events")
     df = context.fetchdf(f"""
@@ -45,7 +45,7 @@ def execute(
 
     valid_rows = []
     for _, row in df.iterrows():
-        is_valid, _error = validate_song_played(row.to_dict())
+        is_valid, _error = validate_song_played_v2(row.to_dict())
         if is_valid:
             valid_rows.append([row.to_dict()[k] for k in COLUMNS])  # ne garde que les colonnes du contrat
 

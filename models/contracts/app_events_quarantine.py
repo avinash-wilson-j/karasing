@@ -29,7 +29,7 @@ def execute(
     **kwargs: t.Any,
 ) -> pd.DataFrame:
     
-    from models.contracts.app_events_v1 import validate_song_played
+    from models.contracts.app_events_v2 import validate_song_played_v2
 
     table = context.resolve_table("raw.raw_app_events")
     df = context.fetchdf(f"""
@@ -41,7 +41,7 @@ def execute(
     quarantine_rows = []
     for _, row in df.iterrows():
         row_dict = row.to_dict()
-        is_valid, error = validate_song_played(row_dict)
+        is_valid, error = validate_song_played_v2(row_dict)
         if not is_valid:
             quarantine_rows.append({
                 "event_id": row_dict.get("event_id"),

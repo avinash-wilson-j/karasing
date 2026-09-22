@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import random
+import shutil
 from datetime import date
 from pathlib import Path
 
@@ -34,6 +35,9 @@ def parse_args(argv=None) -> argparse.Namespace:
                     help="Index du jour (0 = --start-date) où injecter l'anomalie.")
     p.add_argument("--late-arrival-days", type=int, default=3,
                     help="Décalage (en jours) appliqué au fichier de sortie pour l'anomalie 'late_arrival'.")
+    p.add_argument("--v2-from-day", type=int, default=None,
+                    help="Index du jour (0 = --start-date) a partir duquel le backend simule son renommage "
+                         "duration_sec -> duration_ms sur les evenements song_played.")
     return p.parse_args(argv)
 
 
@@ -45,6 +49,9 @@ def main(argv=None) -> None:
 
     rng = random.Random(args.seed)
     fake = make_faker(args.seed)
+
+    if out_dir.exists():
+        shutil.rmtree(out_dir)  # chaque run repart de zero : pas de cumul entre deux executions
 
     print(f"[generator] seed={args.seed} days={args.days} start={start_date}")
 
@@ -63,6 +70,8 @@ def main(argv=None) -> None:
         catalogue.write_snapshot(out_dir / "catalogue" / day.isoformat(), songs, artists, rights_holders)
 
         day_events = events.generate_events_for_day(rng, fake, users, songs, day)
+        if args.v2_from_day is not None and i >= args.v2_from_day:
+            day_events = events.apply_schema_v2(day_events)
         late_arrival_days = 0
         if args.inject_anomaly and i == anomaly_day:
             print(f"[generator] anomalie '{args.inject_anomaly}' injectée sur {day}")

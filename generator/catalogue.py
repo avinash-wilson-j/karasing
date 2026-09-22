@@ -25,8 +25,7 @@ from generator.common import (
 )
 
 # Part des titres sans artiste crédité (musique traditionnelle, domaine public,
-# jingles internes...) : donnée réaliste, pas une anomalie injectée. C'est ce
-# qui fera perdre des lignes à un JOIN INNER naïf côté pipeline legacy.
+# jingles internes...) : donnée réaliste, pas une anomalie injectée.
 NO_ARTIST_RATE = 0.04
 
 # Chaque jour, une petite fraction du catalogue évolue.

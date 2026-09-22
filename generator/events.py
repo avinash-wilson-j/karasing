@@ -42,6 +42,17 @@ def _iso_utc(dt: datetime) -> str:
 def _gen_session_events(rng: random.Random, fake: Faker, user: User, songs: list[Song], day: date) -> list[dict]:
     session_id = str(uuid.uuid4())
     events = []
+    # Compteur d'evenements dans la session, pose par le SDK mobile a des fins
+    # de diagnostic (ordonnancement des rapports de crash). Redemarre a 1 a
+    # chaque nouvelle session : ce n'est pas un identifiant stable ni unique
+    # au-dela d'une session.
+    client_seq = 0
+
+    def next_seq() -> int:
+        nonlocal client_seq
+        client_seq += 1
+        return client_seq
+
     n_searches = rng.randint(0, 3)
     for _ in range(n_searches):
         events.append({
@@ -54,6 +65,7 @@ def _gen_session_events(rng: random.Random, fake: Faker, user: User, songs: list
             "searched_at": _iso_utc(_random_time_on(rng, day)),
             "query": fake.word(),
             "results_count": rng.randint(0, 20),
+            "_client_seq": next_seq(),
         })
 
     n_plays = rng.randint(1, 6)
@@ -72,6 +84,7 @@ def _gen_session_events(rng: random.Random, fake: Faker, user: User, songs: list
             "played_at": _iso_utc(_random_time_on(rng, day)),
             "duration_sec": duration_sec if completed else rng.randint(5, duration_sec),
             "completed": completed,
+            "_client_seq": next_seq(),
         })
         if rng.random() < 0.08:
             events.append({
@@ -83,6 +96,7 @@ def _gen_session_events(rng: random.Random, fake: Faker, user: User, songs: list
                 "device": user.device,
                 "country": user.country,
                 "added_at": _iso_utc(_random_time_on(rng, day)),
+                "_client_seq": next_seq(),
             })
     return events
 
@@ -96,6 +110,15 @@ def _apply_baseline_noise(rng: random.Random, events: list[dict]) -> list[dict]:
         if rng.random() < BASELINE_NULL_KEY_RATE:
             ev["user_id"] = None
     return noisy
+
+
+def apply_schema_v2(events: list[dict]) -> list[dict]:
+    """Simule le backend v2 : renomme duration_sec en duration_ms (millisecondes)
+    sur les evenements song_played, sans prevenir les consommateurs en aval."""
+    for ev in events:
+        if ev.get("event_type") == "song_played" and "duration_sec" in ev:
+            ev["duration_ms"] = ev.pop("duration_sec") * 1000
+    return events
 
 
 def apply_anomaly(rng: random.Random, events: list[dict], anomaly: str) -> list[dict]:
