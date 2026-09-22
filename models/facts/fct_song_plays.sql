@@ -6,7 +6,8 @@ MODEL (
   audits (
     not_null(columns := (event_id, user_id, song_id, played_at)),
     unique_values(columns := (event_id)),
-    fct_song_plays_song_id_exists()
+    fct_song_plays_song_id_exists(),
+    fct_song_plays_volume_anomaly()
   ),
   start '2026-01-01',
   end '2026-01-31',
