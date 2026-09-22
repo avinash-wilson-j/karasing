@@ -50,4 +50,7 @@ def execute(
                 "event_date": row_dict.get("event_date"),
             })
 
-    return pd.DataFrame(quarantine_rows, columns=list(COLUMNS.keys()))
+    if not quarantine_rows:
+        yield from ()
+        return
+    yield pd.DataFrame(quarantine_rows, columns=list(COLUMNS.keys()))
