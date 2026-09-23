@@ -20,6 +20,15 @@ gateways:
       # filesystems: 
       # token: 
       extensions: [icu]
+  bigquery:
+    connection:
+      type: bigquery
+      project: karasing-sandbox
+      location: europe-west1
+      method: oauth
+    state_connection:
+      type: duckdb
+      database: state_bigquery.db
 
 default_gateway: duckdb
 

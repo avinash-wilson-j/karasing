@@ -7,6 +7,15 @@ logs/
 # SQLMesh
 .cache/
 
+# Bases DuckDB locales (regenerees a chaque run)
+*.duckdb
+*.duckdb.wal
+db.db
+state_bigquery.db
+
+# Pulumi (etat local, jamais commite ; le state distant reste sous ~/.pulumi)
+infra/venv/
+infra/.pulumi/
+
 # Données générées (volumineuses, régénérables via generator/)
-data/raw/*
-!data/raw/.gitkeep
+data/raw/
