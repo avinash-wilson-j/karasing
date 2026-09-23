@@ -25,7 +25,7 @@ pas](#ce-que-ce-projet-prouve--ne-prouve-pas).
 - ✅ Jalon 5 — Qualité (tests unitaires, audits, détection d'anomalie de volume)
 - ✅ Jalon 6 — Exercice d'incident (injection, détection, restatement, post-mortem)
 - ✅ Jalon 7 — CI GitHub Actions
-- ⬜ Jalon 8 — Option cloud (BigQuery sandbox / Pulumi) — optionnel, non fait, architecture cible documentée dans [`docs/architecture_cible.md`](docs/architecture_cible.md)
+- ✅ Jalon 8 — Option cloud : Pulumi + BigQuery Sandbox (sans carte bancaire), scope volontairement limité — voir [`docs/jalon8_recap.md`](docs/jalon8_recap.md)
 - 🚧 Jalon 9 — Livrables finaux (README, ADRs, pitch, questions d'entretien) — en cours
 
 ## Architecture
@@ -61,6 +61,8 @@ Détail complet des couches, du rôle de chaque brique et de l'architecture cibl
 | `SCD_TYPE_2_BY_TIME` (dim_user) vs `SCD_TYPE_2_BY_COLUMN` (dim_song/artist) | Deux patterns de source différents (log de changements vs snapshots) | [`jalon4_recap.md`](docs/jalon4_recap.md) |
 | Audits non-bloquants pour la cohérence référentielle et le volume | Ne pas arrêter tout un run pour un problème localisé à un intervalle | [`jalon5_recap.md`](docs/jalon5_recap.md) |
 | Pas de bot CI/CD officiel SQLMesh | Pensé pour une prod partagée entre PRs, hors scope ici | [`jalon7_recap.md`](docs/jalon7_recap.md) |
+| BigQuery Sandbox (sans carte) plutôt que GCP Free Tier complet | Prouver l'intégration Pulumi + BigQuery sans engager de moyen de paiement | [`jalon8_recap.md`](docs/jalon8_recap.md) |
+| `state_connection` SQLMesh séparé (DuckDB) du gateway BigQuery | Le Sandbox ne supporte pas le DML dont SQLMesh a besoin pour son propre suivi d'état | [`jalon8_recap.md`](docs/jalon8_recap.md) |
 
 ## Comment lancer le projet
 
@@ -96,6 +98,7 @@ models/
 audits/           audits SQLMesh custom (cohérence référentielle, anomalie de volume)
 tests/            tests unitaires SQLMesh
 .github/workflows/ CI GitHub Actions (lint, tests, plan sur DuckDB frais)
+infra/            infrastructure Pulumi (Python) — datasets BigQuery, option cloud jalon 8
 docs/             audit legacy, recaps par jalon, architecture cible, runbook d'incident
 data/raw/         sorties du générateur (non versionné, régénérable)
 ```
@@ -113,7 +116,12 @@ data/raw/         sorties du générateur (non versionné, régénérable)
 - `marts.venue_occupancy_daily` peut dépasser 100% (le générateur ne prévient pas les
   doubles réservations salle/créneau) — capacité approximative, pas de détection de
   chevauchement au niveau créneau.
-- Option cloud (jalon 8, Pulumi/BigQuery) non implémentée à ce stade.
+- La couche `raw/` (fonctions `read_csv_auto`/`read_json_auto`, propres à DuckDB) ne porte
+  pas telle quelle sur BigQuery — vérifié en pratique au jalon 8. Une vraie prod cloud
+  demanderait une couche d'ingestion dédiée (`bq load`, tables externes sur Cloud Storage).
+- Incohérence de nommage entre le schéma `dims` (modèles `dim_venue`/`dim_user`/`dim_song`/
+  `dim_artist`, jalon 4) et `dim` (dataset Pulumi et modèle `seed_venues`, jalon 8) — sans
+  conséquence en local, à corriger avant un vrai déploiement BigQuery complet.
 
 ## Ce que ce projet prouve / ne prouve pas
 
@@ -123,15 +131,20 @@ quarantaine, dimensions SCD2, faits incrémentaux, marts) ; à instrumenter la q
 (audits bloquants/non-bloquants, détection d'anomalie de volume, tests unitaires) ; à
 gérer un incident de bout en bout (détection → diagnostic → restatement ciblé →
 post-mortem) ; à mettre en place une CI qui valide réellement le projet depuis zéro (et à
-déboguer les problèmes que ça révèle — dépendances cachées, portabilité Windows/Linux).
+déboguer les problèmes que ça révèle — dépendances cachées, portabilité Windows/Linux) ; à
+provisionner de l'infra GCP avec Pulumi et à connecter SQLMesh à un vrai BigQuery, avec les
+bons réflexes de garde-fous (nettoyage systématique, sans jamais engager de moyen de
+paiement).
 
 **Ne prouve pas** : usage de SQLMesh en production, à l'échelle, sur des volumes réels ;
 expérience opérationnelle du support/monitoring d'un pipeline SQLMesh en conditions
-réelles (alerting, astreinte) ; déploiement cloud réel (jalon 8 optionnel, non fait).
+réelles (alerting, astreinte) ; un déploiement cloud complet (le jalon 8 a volontairement
+un scope réduit — un seul modèle testé sur BigQuery, pas toute la chaîne — voir
+[`docs/jalon8_recap.md`](docs/jalon8_recap.md) pour les limites rencontrées).
 
 ## Documentation complémentaire
 
 - [`docs/audit_legacy.md`](docs/audit_legacy.md) — audit du pipeline prestataire (jalon 2)
-- [`docs/jalon3_recap.md`](docs/jalon3_recap.md) à [`jalon7_recap.md`](docs/jalon7_recap.md) — récaps techniques par jalon
+- [`docs/jalon3_recap.md`](docs/jalon3_recap.md) à [`jalon8_recap.md`](docs/jalon8_recap.md) — récaps techniques par jalon
 - [`docs/architecture_cible.md`](docs/architecture_cible.md) — architecture cloud cible
 - [`docs/runbook_incident.md`](docs/runbook_incident.md) — post-mortem de l'exercice d'incident (jalon 6)
